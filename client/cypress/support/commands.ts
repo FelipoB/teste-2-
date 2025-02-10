@@ -38,10 +38,13 @@
 
 import Prisma from '@prisma/client';
 
+
+
 declare global {
   namespace Cypress {
     interface Chainable {
       login: (username: string, password: string) => {};
+      trylogin: (username: string, password: string) => {};
       getByCy<E extends Node = HTMLElement>(
         cyId: string
       ): Cypress.Chainable<JQuery<E>>;
@@ -85,5 +88,19 @@ Cypress.Commands.add('createHero', () => {
 Cypress.Commands.add('deleteHero', (id: number) => {
   cy.task('deleteHero', id);
 });
+
+Cypress.Commands.add('trylogin', (username: string, password: string) => {
+  cy.session(`login-${username}`, () => {
+    cy.visit('/');
+    cy.get('button').contains('Login').click();
+    cy.get('input[type="email"]').type(username);
+    cy.get('input[type="password"]').type(password);
+    cy.get('button').contains('Sign in').click();
+    cy.get('.text-red-500').should('be.visible').contains('Invalid email or password');
+    
+  });
+});
+
+
 
 export {};
